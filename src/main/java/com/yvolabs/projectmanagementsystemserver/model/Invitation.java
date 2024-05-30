@@ -24,5 +24,5 @@ public class Invitation {
 
     private String token;
     private String email;
-    private String projectId;
+    private Long projectId;
 }
