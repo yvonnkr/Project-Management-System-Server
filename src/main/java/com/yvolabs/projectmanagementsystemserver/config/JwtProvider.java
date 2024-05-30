@@ -29,6 +29,9 @@ public class JwtProvider {
     }
 
     public static String getEmailFromToken(String token) {
+        // remove Bearer part before parsing
+        token = token.substring(7);
+
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
