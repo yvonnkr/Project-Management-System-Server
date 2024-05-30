@@ -1,9 +1,12 @@
 package com.yvolabs.projectmanagementsystemserver.controller;
 
+import com.yvolabs.projectmanagementsystemserver.dto.request.InviteRequest;
 import com.yvolabs.projectmanagementsystemserver.dto.response.MessageResponse;
 import com.yvolabs.projectmanagementsystemserver.model.Chat;
+import com.yvolabs.projectmanagementsystemserver.model.Invitation;
 import com.yvolabs.projectmanagementsystemserver.model.Project;
 import com.yvolabs.projectmanagementsystemserver.model.User;
+import com.yvolabs.projectmanagementsystemserver.service.InvitationService;
 import com.yvolabs.projectmanagementsystemserver.service.ProjectService;
 import com.yvolabs.projectmanagementsystemserver.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,7 @@ import java.util.List;
 public class ProjectController {
     private final ProjectService projectService;
     private final UserService userService;
+    private final InvitationService invitationService;
 
     @GetMapping
     public ResponseEntity<List<Project>> getProjects(@RequestParam(required = false) String category,
@@ -83,6 +87,27 @@ public class ProjectController {
     public ResponseEntity<Chat> getChatByProjectById(@PathVariable Long projectId) throws Exception {
         Chat chat = projectService.getChatByProjectId(projectId);
         return ResponseEntity.ok(chat);
+    }
+
+    @PostMapping("/send_invitation")
+    public ResponseEntity<?> sendInvitationRequest(@RequestBody InviteRequest request) throws Exception {
+        invitationService.sendInvitation(request.getEmail(), request.getProjectId());
+        MessageResponse response = MessageResponse.builder()
+                .message("user invitation sent successfully")
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/accept_invitation")
+    public ResponseEntity<Invitation> acceptInvitationProject(@RequestParam String token, @RequestHeader("Authorization") String jwt) throws Exception {
+
+        User user = userService.findUserProfileByJwt(jwt);
+        Invitation invitation = invitationService.acceptInvitation(token, user.getId());
+
+        projectService.addUserToProject(invitation.getProjectId(), user.getId());
+
+        return ResponseEntity.ok(invitation);
     }
 
 

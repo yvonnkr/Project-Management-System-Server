@@ -5,6 +5,7 @@ import com.yvolabs.projectmanagementsystemserver.exception.custom.UserAlreadyExi
 import io.jsonwebtoken.io.DecodingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailAuthenticationException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
@@ -90,6 +91,18 @@ public class ExceptionHandlerAdvice {
                 .build();
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @ExceptionHandler({MailAuthenticationException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    ResponseEntity<?> handleMailAuthenticationException(MailAuthenticationException ex) {
+        ExceptionResponse response = ExceptionResponse.builder()
+                .statusCode(400)
+                .message("Could not send email, see below for more details")
+                .data(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     /**
