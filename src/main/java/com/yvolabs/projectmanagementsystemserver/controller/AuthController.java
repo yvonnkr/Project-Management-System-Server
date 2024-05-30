@@ -69,7 +69,7 @@ public class AuthController {
         String jwt = JwtProvider.generateToken(authentication);
 
         AuthResponse response = AuthResponse.builder()
-                .jwt("Bearer " + jwt)
+                .jwt(jwt)
                 .message("login success")
                 .build();
 

@@ -1,5 +1,8 @@
 package com.yvolabs.projectmanagementsystemserver.config;
 
+import com.yvolabs.projectmanagementsystemserver.exception.custom.CustomBearerTokenAccessDeniedHandler;
+import com.yvolabs.projectmanagementsystemserver.exception.custom.CustomBearerTokenAuthenticationEntryPoint;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -22,7 +25,10 @@ import java.util.Collections;
  */
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class AppConfig {
+    private final CustomBearerTokenAuthenticationEntryPoint customBearerTokenAuthenticationEntryPoint;
+    private final CustomBearerTokenAccessDeniedHandler customBearerTokenAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -38,6 +44,11 @@ public class AppConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .exceptionHandling(
+                        exception -> exception
+                                .authenticationEntryPoint(customBearerTokenAuthenticationEntryPoint)
+                                .accessDeniedHandler(customBearerTokenAccessDeniedHandler)
+                )
                 .build();
     }
 
